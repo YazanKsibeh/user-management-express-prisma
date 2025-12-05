@@ -2,14 +2,14 @@ import { z } from 'zod';
 
 // Register Schema
 export const registerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email format'),
+  name: z.string({ required_error: 'Name is required' }).min(2, 'Name must be at least 2 characters'),
+  email: z.string({ required_error: 'Email is required' }).regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email format'),
   password: z
-    .string()
+    .string({ required_error: 'Password is required' })
     .min(8, 'Password must be at least 8 characters')
     .regex(/[0-9]/, 'Password must include at least one number')
     .regex(/[A-Z]/, 'Password must include at least one uppercase letter'),
-  confirmPassword: z.string(),
+  confirmPassword: z.string({ required_error: 'Confirm password is required' }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ['confirmPassword'],
@@ -17,8 +17,8 @@ export const registerSchema = z.object({
 
 // Login Schema
 export const loginSchema = z.object({
-  email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email format'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.string({ required_error: 'Email is required' }).regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email format'),
+  password: z.string({ required_error: 'Password is required' }),
 });
 
 // Update User Schema
@@ -64,12 +64,30 @@ export const validate = (schema) => {
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
+        // Custom error messages for better UX
+        const customMessages = {
+          email: 'Email is required',
+          password: 'Password is required',
+          confirmPassword: 'Confirm password is required',
+          name: 'Name is required',
+        };
+
         return res.status(400).json({
           error: 'Validation error',
-          details: error.issues.map((err) => ({
-            field: err.path.join('.'),
-            message: err.message,
-          })),
+          details: error.issues.map((err) => {
+            const fieldName = err.path[0];
+            // If error is about undefined/missing field, use custom message
+            if (err.code === 'invalid_type' && err.received === undefined) {
+              return {
+                field: err.path.join('.'),
+                message: customMessages[fieldName] || `${fieldName} is required`,
+              };
+            }
+            return {
+              field: err.path.join('.'),
+              message: err.message,
+            };
+          }),
         });
       }
       next(error);
