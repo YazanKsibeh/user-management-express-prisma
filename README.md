@@ -2,28 +2,12 @@
 
 A REST API project for user management with authentication and role-based access control.
 
-## Project Setup
-
-This is the initial setup of the project.
-The Express server is configured and the database schema is defined.
-
 ## Tech Stack
 
 - Node.js
 - Express.js
 - PostgreSQL
 - Prisma ORM
-
-## Currently Implemented
-
-- Express server running on port 3000
-- CORS and JSON middleware configured
-- Prisma schema with User model
-- Database migrations setup
-- User registration endpoint (POST /auth/register)
-- User login endpoint (POST /auth/login) with JWT token generation
-- Input validation with Zod schemas
-- Password hashing with bcrypt
 
 ## Installation
 
@@ -35,40 +19,53 @@ The Express server is configured and the database schema is defined.
 
 ## Running the Server
 
+Start the development server with:
+
 npm run dev
-Visit `http://localhost:3000` to see the health check response.
+
+The server will run on `http://localhost:3000`. You can visit the root endpoint to see a health check response.
 
 ## Database Schema
 
-The User model includes:
-- id, name, email, passwordHash, role, createdAt, updatedAt
-
-Role can be either USER or ADMIN.
+User model fields:
+- id : UUID
+- name : Full name
+- email : Email address
+- passwordHash : Hashed password
+- role : USER or ADMIN
+- createdAt : Creation timestamp
+- updatedAt : Last update timestamp
 
 ## API Endpoints
 
+Base URL: `http://localhost:3000`
+
+For authenticated endpoints, include the JWT token in the Authorization header:
+Authorization: Bearer <token>
+
 ### Authentication
 
-**POST /auth/register**
-- Register a new user account
-- Request body: `{ name, email, password, confirmPassword }`
-- Password requirements: minimum 8 characters, must include number and uppercase letter
-- Returns: User object (without password) and success message
-- Status codes: 201 (success), 400 (validation error), 409 (email already exists)
+**POST /auth/register** - Register user (name, email, password, confirmPassword).
 
-**POST /auth/login**
-- Login with email and password
-- Request body: `{ email, password }`
-- Returns: JWT token and user object
-- Status codes: 200 (success), 400 (validation error), 401 (invalid credentials)
+**POST /auth/login** - Login (email, password). Returns token + user.
 
-### Testing
+### User Management
 
-A Postman collection is included in the repository with test cases for all endpoints. Import `postman-collection.json` into Postman to test the API.
+**GET /users** - List users (admin sees all, user sees self). Auth required.
 
-## License
+**GET /users/:id** - Get user by ID (admin or owner).
 
-MIT
+**PUT /users/:id** - Update user (optional: name, email, password, role).
+
+**DELETE /users/:id** - Delete user (admin or owner).
+
+### Admin
+
+**POST /admin/register** - Create admin (admin only).
+
+## Testing
+
+I've included a Postman collection (postman-collection.json) with test cases for all endpoints. Simply import it into Postman.
 
 ## Author
 

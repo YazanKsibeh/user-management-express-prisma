@@ -15,15 +15,10 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-/**
- * Register a new user
- * @param {Object} userData - User registration data
- * @returns {Promise<Object>} Created user (without passwordHash)
- */
+// Register user
 export const registerUser = async (userData) => {
   const { name, email, password } = userData;
 
-  // Check if email already exists
   const existingUser = await prisma.user.findUnique({
     where: { email },
   });
@@ -32,10 +27,8 @@ export const registerUser = async (userData) => {
     throw new Error('Email already exists');
   }
 
-  // Hash password
   const passwordHash = await hashPassword(password);
 
-  // Create user with default role USER
   const user = await prisma.user.create({
     data: {
       name,
@@ -55,14 +48,8 @@ export const registerUser = async (userData) => {
   return user;
 };
 
-/**
- * Login user and generate JWT token
- * @param {string} email - User email
- * @param {string} password - User password
- * @returns {Promise<Object>} Token and user data
- */
+// Login user
 export const loginUser = async (email, password) => {
-  // Find user by email
   const user = await prisma.user.findUnique({
     where: { email },
   });
@@ -71,21 +58,18 @@ export const loginUser = async (email, password) => {
     throw new Error('Invalid credentials');
   }
 
-  // Verify password
   const isPasswordValid = await comparePassword(password, user.passwordHash);
 
   if (!isPasswordValid) {
     throw new Error('Invalid credentials');
   }
 
-  // Generate JWT token
   const token = generateToken({
     id: user.id,
     email: user.email,
     role: user.role,
   });
 
-  // Return token and user data (without passwordHash)
   return {
     token,
     user: {

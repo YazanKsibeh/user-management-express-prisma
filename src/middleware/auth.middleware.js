@@ -1,8 +1,6 @@
 import { verifyToken } from '../utils/jwt.js';
 
-/**
- * Authentication middleware - verifies JWT token and attaches user info to request
- */
+// Authentication middleware - verifies JWT token and attaches user info to request
 export const authMiddleware = (req, res, next) => {
   try {
     // Get token from Authorization header
