@@ -5,6 +5,11 @@ import { hashPassword, comparePassword } from '../utils/password.js';
 import { generateToken } from '../utils/jwt.js';
 import 'dotenv/config';
 
+// Validate DATABASE_URL is configured
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is not configured');
+}
+
 const { Pool } = pg;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
