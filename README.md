@@ -20,6 +20,10 @@ The Express server is configured and the database schema is defined.
 - CORS and JSON middleware configured
 - Prisma schema with User model
 - Database migrations setup
+- User registration endpoint (POST /auth/register)
+- User login endpoint (POST /auth/login) with JWT token generation
+- Input validation with Zod schemas
+- Password hashing with bcrypt
 
 ## Installation
 
@@ -40,6 +44,27 @@ The User model includes:
 - id, name, email, passwordHash, role, createdAt, updatedAt
 
 Role can be either USER or ADMIN.
+
+## API Endpoints
+
+### Authentication
+
+**POST /auth/register**
+- Register a new user account
+- Request body: `{ name, email, password, confirmPassword }`
+- Password requirements: minimum 8 characters, must include number and uppercase letter
+- Returns: User object (without password) and success message
+- Status codes: 201 (success), 400 (validation error), 409 (email already exists)
+
+**POST /auth/login**
+- Login with email and password
+- Request body: `{ email, password }`
+- Returns: JWT token and user object
+- Status codes: 200 (success), 400 (validation error), 401 (invalid credentials)
+
+### Testing
+
+A Postman collection is included in the repository with test cases for all endpoints. Import `postman-collection.json` into Postman to test the API.
 
 ## License
 
