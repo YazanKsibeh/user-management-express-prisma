@@ -1,7 +1,7 @@
 {
   "name": "user-management-express-prisma",
   "version": "1.0.0",
-  "description": "User management API with authentication and role management useing Expressjs and PostgreSQL with Prisma ORM",
+  "description": "User management API with authentication and role management using Expressjs and PostgreSQL with Prisma ORM",
   "main": "app.js",
   "type": "module",
   "scripts": {
